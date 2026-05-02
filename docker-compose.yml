@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017" # Maps host port to container port
+    volumes:
+      - mongo-data:/data/db # Persists database data even if the container is destroyed
+
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    environment:
+      # Connects to the 'mongo' service name resolved by Docker's internal DNS
+      - MONGO_URI=mongodb://mongo:27017/f1dashboard 
+    depends_on:
+      - mongo
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80" # Nginx serves on port 80
+    depends_on:
+      - backend
+
+# Declare the named volume used by MongoDB
+volumes:
+  mongo-data:

@@ -1,15 +1,8 @@
-# Node modules
-backend/node_modules/
-frontend/node_modules/
-
-# Environment variables
-.env
-backend/.env
-frontend/.env
-
-# Build outputs
-frontend/dist/
-frontend/build/
-
-# Optional IDE files
+# Global ignores
+node_modules/
+.DS_Store
 .vscode/
+.idea/
+
+# Ignore Docker volume data (if you ever test locally without named volumes)
+data/
