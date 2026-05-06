@@ -1,0 +1,54 @@
+name: F1 Dashboard CI Pipeline
+
+# 1. THE TRIGGER
+# This tells GitHub to run this workflow every time code is pushed to the 'main' branch.
+on:
+  push:
+    branches:
+      - main
+
+# 2. THE JOBS
+# Jobs run in parallel by default. We are defining one job to build and push our images.
+jobs:
+  build-and-push:
+    # This spins up a fresh, temporary Ubuntu Linux machine on GitHub's servers
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step A: Download your code onto the GitHub runner
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # Step B: Set up Docker Buildx (Docker's advanced building engine)
+      # This allows for faster builds and advanced caching features.
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # Step C: Authenticate with Docker Hub using the secrets we created
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Step D: Build and Push the Node.js Backend Image
+      - name: Build and Push Backend Image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./backend    # Tells Docker to look in the backend/ folder for the Dockerfile
+          push: true            # Automatically push to Docker Hub after building
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/f1-backend:latest
+            ${{ secrets.DOCKER_USERNAME }}/f1-backend:${{ github.sha }}
+          # Note on tags: We tag it 'latest' for easy pulling, AND with the GitHub Commit SHA 
+          # (${{ github.sha }}) so every single build has a unique, trackable version number.
+
+      # Step E: Build and Push the React (Vite) Frontend Image
+      - name: Build and Push Frontend Image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./frontend   # Tells Docker to look in the frontend/ folder for the Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/f1-frontend:latest
+            ${{ secrets.DOCKER_USERNAME }}/f1-frontend:${{ github.sha }}
