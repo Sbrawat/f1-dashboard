@@ -1,4 +1,4 @@
-import React from 'react';
+import 'react';
 
 // Importing components (We will build these next in Task 2.2)
 import NextSessionCard from '../components/NextSessionCard';
