@@ -1,13 +1,19 @@
-// backend/index.js
 import express from 'express'
 import mongoose from 'mongoose'
 import cors from 'cors';
+import dotenv from 'dotenv';
+// Import Routes
+import sessionRoutes from './routes/sessionRoutes.js';
+import weatherRoutes from './routes/weatherRoutes.js';
 
+dotenv.config();
 
 const app = express();
 
+// Middleware
 // Enable CORS so the React frontend can request data from a different port
 app.use(cors());
+app.use(express.json());
 
 // Pull the connection string from Docker's environment variables
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/f1dashboard';
@@ -30,5 +36,12 @@ app.get('/api/status', (req, res) => {
     });
 });
 
+// Mount Routes
+// This tells Express: "Any request starting with /api/session, use sessionRoutes"
+app.use('/api/session', sessionRoutes);
+app.use('/api/weather', weatherRoutes);
+
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Backend running on port ${PORT}`));
+app.listen(PORT, () => {
+    console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+});
