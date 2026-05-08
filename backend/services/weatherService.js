@@ -21,7 +21,7 @@ export const getWeatherData = async (lat, lon) => {
             params: {
                 lat,
                 lon,
-                appid: WEATHER_API_KEY,
+                appid: process.env.OPENWEATHER_API_KEY,
                 units: 'metric' // F1 uses Celsius 
             }
         });
