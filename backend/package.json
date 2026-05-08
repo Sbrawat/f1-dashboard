@@ -2,9 +2,10 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.mjs",
+  "main": "app.mjs",
   "scripts": {
-    "start": "node index.mjs",
+    "dev": "nodemon app.mjs",
+    "start": "node app.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
