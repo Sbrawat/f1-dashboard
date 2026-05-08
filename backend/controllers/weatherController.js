@@ -1,32 +1,55 @@
-import { getUpcomingSession } from '../services/f1ScheduleService.js';
+import { getWeatherData } from '../services/weatherService.js';
 
 /**
- * @desc    Get the exact next F1 session and circuit details
- * @route   GET /api/session/next
+ * @desc    Get current weather and track temp estimations for specific coordinates
+ * @route   GET /api/weather/current
  * @access  Public
  */
-export const getNextSession = async (req, res) => {
+export const getCurrentWeather = async (req, res) => {
     try {
-        const sessionData = await getUpcomingSession();
+        // Extract coordinates from query parameters (e.g., /api/weather/current?lat=43.73&lon=7.42)
+        const { lat, lon } = req.query;
 
-        // If the season is over, the service returns a message instead of a session name
-        if (sessionData.message) {
-            return res.status(200).json({
-                success: true,
-                data: sessionData
+        // Validation
+        if (!lat || !lon) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please provide both latitude (lat) and longitude (lon) query parameters.'
+            });
+        }
+
+        // Parse to floats to ensure the service handles them correctly
+        const latitude = parseFloat(lat);
+        const longitude = parseFloat(lon);
+
+        if (isNaN(latitude) || isNaN(longitude)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Latitude and longitude must be valid numbers.'
+            });
+        }
+
+        const weatherData = await getWeatherData(latitude, longitude);
+
+        // Check if the service returned its fallback error object
+        if (weatherData.error) {
+            return res.status(503).json({
+                success: false,
+                message: weatherData.error,
+                data: weatherData // Still return the N/A data so the frontend doesn't crash
             });
         }
 
         res.status(200).json({
             success: true,
-            data: sessionData
+            data: weatherData
         });
 
     } catch (error) {
-        console.error('Session Controller Error:', error.message);
+        console.error('Weather Controller Error:', error.message);
         res.status(500).json({
             success: false,
-            message: 'Failed to retrieve the upcoming session data.',
+            message: 'Server error while fetching weather data.',
             error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
