@@ -10,8 +10,12 @@ import raceRoutes from './routes/raceRoutes.js'; // NEW: Import the race routes
 
 // Import Live-Sim Engine
 import { initializeTelemetryStream } from './services/telemetryStreamService.js';
+import connectDB from './db/connect.js';
 
 dotenv.config();
+
+// Connect to MongoDB
+connectDB();
 
 const app = express();
 const httpServer = createServer(app); 

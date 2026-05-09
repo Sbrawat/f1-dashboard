@@ -1,3 +1,4 @@
+import RaceCache from '../models/RaceCache.js';
 import { getHistoricalCalendar, getRaceResults } from '../services/openF1Service.js';
 
 /**
@@ -35,54 +36,37 @@ export const getSeasonCalendar = async (req, res) => {
  * @route   GET /api/races/:id/results
  * @access  Public
  */
+
 export const getRaceResultsById = async (req, res) => {
     try {
         const { id: sessionKey } = req.params;
 
-        if (!sessionKey) {
-            return res.status(400).json({
-                success: false,
-                message: 'A valid session ID is required.'
-            });
+        // 1. CHECK MONGODB FIRST
+        const cachedRace = await RaceCache.findOne({ sessionKey: Number(sessionKey) });
+        
+        if (cachedRace) {
+            console.log('Serving results from MongoDB Cache');
+            return res.status(200).json({ success: true, data: cachedRace.results });
         }
 
+        // 2. IF NOT IN DB, FETCH FROM EXTERNAL API
+        console.log('Fetching results from OpenF1 API...');
         const rawPositions = await getRaceResults(sessionKey);
 
-        if (!rawPositions || rawPositions.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: 'No results found for this session.'
-            });
-        }
-
-        // Data Reduction: OpenF1 returns position changes for every lap.
-        // We only want the FINAL classification for the results view.
-        const finalPositionsMap = new Map();
-
-        rawPositions.forEach(entry => {
-            const existingEntry = finalPositionsMap.get(entry.driver_number);
-            
-            // If the driver isn't in the map yet, or if this current entry has a later timestamp, update it.
-            if (!existingEntry || new Date(entry.date) > new Date(existingEntry.date)) {
-                finalPositionsMap.set(entry.driver_number, entry);
-            }
-        });
-
-        // Convert the map back to an array and sort by finishing position (1st to 20th)
+        // ... (Insert the data reduction logic we built earlier here) ...
         const finalClassification = Array.from(finalPositionsMap.values())
             .sort((a, b) => a.position - b.position);
 
-        res.status(200).json({
-            success: true,
-            data: finalClassification
+        // 3. SAVE TO MONGODB FOR NEXT TIME
+        await RaceCache.create({
+            sessionKey: Number(sessionKey),
+            results: finalClassification
         });
 
+        // 4. SEND TO FRONTEND
+        res.status(200).json({ success: true, data: finalClassification });
+
     } catch (error) {
-        console.error('Race Controller - Results Error:', error.message);
-        res.status(500).json({
-            success: false,
-            message: 'Failed to retrieve race results.',
-            error: process.env.NODE_ENV === 'development' ? error.message : undefined
-        });
+        // ... error handling
     }
 };
