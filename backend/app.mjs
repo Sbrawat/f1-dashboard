@@ -1,54 +1,36 @@
-import express from 'express'
-import mongoose from 'mongoose'
+import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { createServer } from 'http'; // Standard Node.js module
+import { createServer } from 'http'; 
+
 // Import Routes
 import sessionRoutes from './routes/sessionRoutes.js';
 import weatherRoutes from './routes/weatherRoutes.js';
+import raceRoutes from './routes/raceRoutes.js'; // NEW: Import the race routes
+
+// Import Live-Sim Engine
 import { initializeTelemetryStream } from './services/telemetryStreamService.js';
 
 dotenv.config();
 
 const app = express();
-// Create a raw HTTP server wrapping the Express app
-const httpServer = createServer(app);
+const httpServer = createServer(app); 
 
 // Middleware
-// Enable CORS so the React frontend can request data from a different port
 app.use(cors());
 app.use(express.json());
 
-// Pull the connection string from Docker's environment variables
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/f1dashboard';
-
-// Connect to MongoDB
-mongoose.connect(MONGO_URI)
-  .then(() => console.log('✅ MongoDB Connected Successfully'))
-  .catch(err => console.error('❌ MongoDB Connection Error:', err));
-
-// The Status Endpoint
-app.get('/api/status', (req, res) => {
-    // Check Mongoose's internal state (0 = disconnected, 1 = connected)
-    const dbState = mongoose.connection.readyState;
-    const statusMap = { 0: 'Disconnected', 1: 'Connected', 2: 'Connecting', 3: 'Disconnecting' };
-    
-    res.json({ 
-        source: 'Node.js Backend',
-        message: 'Hello World! The backend is active. 🏎️',
-        databaseStatus: statusMap[dbState] || 'Unknown'
-    });
-});
-
 // Mount Routes
-// This tells Express: "Any request starting with /api/session, use sessionRoutes"
 app.use('/api/session', sessionRoutes);
 app.use('/api/weather', weatherRoutes);
+app.use('/api/races', raceRoutes); // NEW: Mount the race routes
+
+// Initialize WebSocket Engine
 initializeTelemetryStream(httpServer);
 
 const PORT = process.env.PORT || 5000;
 
-// CRITICAL: Call .listen() on the httpServer, NOT the express app
+// Remember to listen on httpServer, not app, to support the WebSockets!
 httpServer.listen(PORT, () => {
-    console.log(`Server & Live-Sim Engine running on port ${PORT}`);
+    console.log(`Server & Live-Sim Engine running in ${process.env.NODE_ENV} mode on port ${PORT}`);
 });
