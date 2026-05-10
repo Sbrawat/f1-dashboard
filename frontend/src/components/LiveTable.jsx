@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useTelemetry } from '../context/TelemetryContext';
 
 const LiveTable = ({ sessionKey }) => {
@@ -11,16 +11,22 @@ const LiveTable = ({ sessionKey }) => {
         stopSimulation 
     } = useTelemetry();
 
+    // Start simulation on mount, cleanup on unmount
     useEffect(() => {
-        if (sessionKey) startSimulation(sessionKey);
+        if (sessionKey) {
+            startSimulation(sessionKey);
+        }
         return () => stopSimulation();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [sessionKey]);
 
+    // Merge positions and intervals, and deterministically simulate missing telemetry
     const tableData = useMemo(() => {
         if (!currentFrame || !currentFrame.positions) return [];
 
         const { positions, intervals, timestamp } = currentFrame;
+        
+        // Convert the ISO timestamp to a raw number (milliseconds) for deterministic math
         const timeTick = timestamp ? new Date(timestamp).getTime() : 0;
 
         const merged = positions.map(pos => {
@@ -30,7 +36,6 @@ const LiveTable = ({ sessionKey }) => {
             const simulatedSpeed = 280 + ((pos.driver_number * 17 + timeTick) % 41);
 
             // Deterministic Sector Times (Simulating changes every frame)
-            // In a production app, this would come from an OpenF1 /laps websocket stream
             const baseS1 = 28.5;
             const baseS2 = 39.2;
             const baseS3 = 23.1;
@@ -54,12 +59,15 @@ const LiveTable = ({ sessionKey }) => {
             };
         });
 
+        // Sort strictly by position (1st to last)
         return merged.sort((a, b) => a.position - b.position);
     }, [currentFrame]);
 
-    // UI States (Loading & Error)
-    if (error) return <div className="p-8 text-center text-red-500 font-bold uppercase">{error}</div>;
-    
+    // UI States (Error & Loading)
+    if (error) {
+        return <div className="p-8 text-center text-red-500 font-bold uppercase tracking-widest">{error}</div>;
+    }
+
     if (simStatus !== 'live' && simStatus !== 'completed') {
         return (
             <div className="flex flex-col items-center justify-center h-96 text-cyan-500">
@@ -134,27 +142,57 @@ const LiveTable = ({ sessionKey }) => {
 };
 
 /**
- * Micro-component for Sector Times to handle the F1 color logic
- * Status: 0 = Yellow, 1 = Green, 2 = Purple
+ * Micro-component for Sector Times
+ * Status: 0 = Yellow (No improvement), 1 = Green (Personal Best), 2 = Purple (Fastest Overall)
  */
 const SectorBox = ({ time, status }) => {
-    let colorClasses = "text-yellow-500"; // Default: No improvement
-    let bgClasses = "transparent";
+    const [isFlashing, setIsFlashing] = useState(false);
+    const prevTimeRef = useRef(time);
+
+    useEffect(() => {
+        // Trigger the flash animation ONLY if the time actually changed
+        if (time && time !== prevTimeRef.current) {
+            setIsFlashing(true);
+            
+            // Hold the solid flash for 1.5 seconds, then fade out
+            const timer = setTimeout(() => {
+                setIsFlashing(false);
+            }, 1500);
+
+            prevTimeRef.current = time;
+
+            return () => clearTimeout(timer);
+        }
+    }, [time]);
+
+    // Base Styles (Resting State)
+    let textColor = "text-yellow-500";
+    let bgColor = "bg-transparent";
+    
+    // Flash Styles (Triggered State)
+    let flashClasses = "";
 
     if (status === 1) {
-        // Personal Best
-        colorClasses = "text-green-400 font-bold";
-        bgClasses = "bg-green-900/20";
+        textColor = "text-green-400 font-bold";
+        bgColor = "bg-green-900/20";
+        flashClasses = "bg-green-500 text-white shadow-[0_0_15px_rgba(74,222,128,0.6)] scale-105 z-10";
     } else if (status === 2) {
-        // Overall Fastest (Flashing Purple)
-        colorClasses = "text-fuchsia-400 font-black animate-pulse";
-        bgClasses = "bg-fuchsia-900/30 border border-fuchsia-800/50 shadow-[0_0_8px_rgba(232,121,249,0.3)]";
+        textColor = "text-fuchsia-400 font-black";
+        bgColor = "bg-fuchsia-900/30 border border-fuchsia-800/50";
+        flashClasses = "bg-fuchsia-500 text-white shadow-[0_0_25px_rgba(232,121,249,0.9)] scale-110 z-20 animate-pulse";
     }
 
     return (
-        <div className={`px-2 py-0.5 rounded transition-all duration-300 ${bgClasses}`}>
-            <span className={`font-mono text-[10px] md:text-xs ${colorClasses}`}>
-                {time}
+        <div className={`
+            px-2 py-0.5 rounded relative flex items-center justify-center min-w-[45px]
+            transition-all duration-500 ease-out border border-transparent
+            ${isFlashing ? flashClasses : bgColor}
+        `}>
+            <span className={`
+                font-mono text-[10px] md:text-xs transition-colors duration-500
+                ${isFlashing ? 'text-white font-black' : textColor}
+            `}>
+                {time || '---'}
             </span>
         </div>
     );
