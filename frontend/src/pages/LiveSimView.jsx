@@ -1,6 +1,7 @@
-import React from 'react';
+import 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useRace } from '../context/RaceContext';
+import LiveTable from '../components/LiveTable';
 
 // We will build this component next!
 // import LiveTable from '../components/LiveTable'; 
@@ -48,22 +49,8 @@ const LiveSimView = () => {
                 
                 {/* Left Column: Timing Tower (Takes up 2/3 of space on large screens) */}
                 <section className="lg:col-span-2 bg-gray-900 border border-gray-800 rounded-xl overflow-hidden flex flex-col shadow-2xl">
-                    <div className="px-4 py-3 bg-gray-950/50 border-b border-gray-800 flex justify-between items-center">
-                        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-                            Live Timing Tower
-                        </span>
-                        <span className="text-[10px] text-cyan-600 font-mono">
-                            SOCKET.IO STREAM
-                        </span>
-                    </div>
                     <div className="flex-grow p-0 overflow-x-auto">
-                        {/* We will uncomment this once we build it! 
-                            <LiveTable sessionKey={sessionKey} /> 
-                        */}
-                        <div className="h-96 flex flex-col items-center justify-center text-gray-600">
-                            <span className="text-4xl mb-3 animate-bounce">⏱️</span>
-                            <p className="uppercase tracking-widest text-sm">Awaiting Telemetry Stream Component</p>
-                        </div>
+                        <LiveTable sessionKey={sessionKey} /> 
                     </div>
                 </section>
 
