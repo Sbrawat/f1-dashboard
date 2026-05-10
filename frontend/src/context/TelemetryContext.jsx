@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import  { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 
 // Automatically strip '/api' if present to get the root server URL for Socket.io
