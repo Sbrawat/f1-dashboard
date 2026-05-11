@@ -1,111 +1,123 @@
-:root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+@import "tailwindcss";
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
-
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
+@layer base {
+  body {
+    @apply bg-gray-950 text-gray-100 font-sans;
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+@layer components {
+  /* --- Epic 2 Hero Dashboard Components --- */
+
+  .hero-grid {
+    @apply max-w-7xl mx-auto p-4 md:p-8 grid grid-cols-1 lg:grid-cols-2 gap-8 items-start;
   }
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
+  .dashboard-card {
+    @apply bg-gray-900 border border-gray-800 rounded-xl overflow-hidden shadow-2xl transition-all duration-300;
   }
-}
-
-body {
-  margin: 0;
-}
-
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-}
-
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
-}
-
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
+  .dashboard-card:hover {
+    @apply border-gray-600 shadow-[0_0_20px_rgba(8,145,178,0.15)];
   }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
+
+  .card-header {
+    @apply p-5 border-b border-gray-800 bg-gray-950/50;
   }
-}
-p {
-  margin: 0;
-}
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-}
+  .card-title {
+    @apply text-xl md:text-2xl font-black text-white uppercase tracking-tight;
+  }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+  .card-subtitle {
+    @apply text-gray-400 text-sm md:text-base uppercase tracking-widest pl-5;
+  }
+
+  .section-header {
+    @apply text-xs font-bold text-gray-500 uppercase tracking-[0.2em] mb-3;
+  }
+
+  .card-body {
+    @apply p-5;
+  }
+
+  .hero-card {
+    @apply bg-gray-900 border border-gray-800 rounded-xl overflow-hidden shadow-2xl transition-all duration-300 flex flex-col;
+  }
+  .hero-card:hover {
+    @apply border-gray-600 shadow-[0_0_20px_rgba(8,145,178,0.15)];
+  }
+
+  .round-info {
+    @apply text-sm text-cyan-500 uppercase font-bold tracking-widest mb-1;
+  }
+
+  .circuit-info {
+    @apply text-xs text-gray-500 font-mono tracking-wider;
+  }
+
+  /* FIXED: Removed the nested 'accent-' custom classes.
+    The border utilities are now applied directly here.
+  */
+  .session-list-item {
+    @apply flex justify-between items-center py-2 border-b border-cyan-900/40 hover:bg-gray-800/40;
+  }
+
+  .session-list-item.active {
+    @apply border-l-4 border-cyan-500 pl-4 bg-gray-800/60;
+  }
+
+  .session-name {
+    @apply text-sm font-bold text-gray-200 transition-colors;
+  }
+
+  .session-list-item:hover .session-name {
+    @apply text-cyan-400;
+  }
+
+  .countdown-container {
+    @apply bg-black border-t-4 border-cyan-500 p-8 flex flex-col items-center mt-auto;
+  }
+
+  .countdown-digits {
+    @apply text-5xl md:text-6xl font-black text-white font-mono tracking-wider tabular-nums leading-none;
+  }
+
+  .weather-container {
+    @apply bg-gray-900 border border-gray-800 rounded-xl overflow-hidden shadow-2xl transition-all duration-300 border-l-4 border-amber-600 flex flex-col;
+  }
+  .weather-container:hover {
+    @apply border-gray-600 shadow-[0_0_20px_rgba(8,145,178,0.15)];
+  }
+
+  .parameter-block {
+    @apply p-4 border-b border-gray-800;
+  }
+
+  .parameter-label {
+    @apply text-[10px] font-bold text-gray-600 uppercase tracking-widest mb-1;
+  }
+
+  .parameter-value-large {
+    @apply text-4xl font-extrabold text-gray-100 tabular-nums;
+  }
+
+  .parameter-value-small {
+    @apply text-base font-bold text-gray-200 tabular-nums;
+  }
+
+  .text-cyan {
+    @apply text-cyan-400 font-semibold;
+  }
+
+  .text-amber {
+    @apply text-amber-500 font-semibold;
+  }
+
+  .parameter-block.humidity {
+    @apply border-l border-cyan-900;
+  }
+
+  .parameter-block.wind {
+    @apply border-l border-amber-900;
+  }
 }
