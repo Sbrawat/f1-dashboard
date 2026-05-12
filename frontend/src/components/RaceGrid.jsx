@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 const RaceGrid = ({ races, activeFilter }) => {
     const navigate = useNavigate();
 
+    
     // Handle Empty States based on the active filter
     if (!races || races.length === 0) {
         return (
@@ -20,6 +21,7 @@ const RaceGrid = ({ races, activeFilter }) => {
             </div>
         );
     }
+    
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -49,6 +51,7 @@ const RaceCard = ({ race, navigate }) => {
     });
 
     const handleLaunchSim = () => {
+
         if (isCompleted && race.session_key) {
             navigate(`/sim/${race.session_key}`);
         }
@@ -93,7 +96,7 @@ const RaceCard = ({ race, navigate }) => {
             {/* Action Area */}
             <div className="p-4 pt-0">
                 <button
-                    onClick={handleLaunchSim}
+                    onClick={() => handleLaunchSim(race.session_key)}
                     disabled={!isCompleted}
                     className={`w-full py-3 rounded text-xs font-bold uppercase tracking-[0.15em] transition-all ${
                         isCompleted

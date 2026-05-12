@@ -9,8 +9,9 @@ import weatherRoutes from './routes/weatherRoutes.js';
 import raceRoutes from './routes/raceRoutes.js'; // NEW: Import the race routes
 
 // Import Live-Sim Engine
-import { initializeTelemetryStream } from './services/telemetryStreamService.js';
+// import { initializeTelemetryStream } from './services/telemetryStreamService.js';
 import connectDB from './db/connect.js';
+import axios from 'axios';
 
 dotenv.config();
 
@@ -30,7 +31,12 @@ app.use('/api/weather', weatherRoutes);
 app.use('/api/races', raceRoutes); // NEW: Mount the race routes
 
 // Initialize WebSocket Engine
-initializeTelemetryStream(httpServer);
+
+// const dataObject = await axios.get("https://api.openf1.org/v1/location?session_key=11234&driver_number=81");
+// console.log("printing something", dataObject);
+
+// initializeTelemetryStream(httpServer);
+
 
 const PORT = process.env.PORT || 5000;
 

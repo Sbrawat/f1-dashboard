@@ -4,16 +4,13 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 // Import our Pages
 import RaceControl from './pages/RaceControl';
 import RaceTimeline from './pages/RaceTimeline';
-// We haven't built this yet, but we will next!
-import LiveSimView from './pages/LiveSimView'; 
+import LiveSimView from './pages/LiveSimView'; // <-- 1. Must be imported
 
 const App = () => {
   return (
-    <div className="bg-gray-950 min-h-screen">
-      {/* Optional: Add a simple persistent Navbar here if you want */}
-      
+    <div className="bg-gray-950 min-h-screen text-gray-100 font-sans">
       <Routes>
-        {/* Redirect root to the Hero Module */}
+        {/* Redirect root to the Race Control dashboard */}
         <Route path="/" element={<Navigate to="/control" replace />} />
         
         {/* Epic 2: The Hero Module */}
@@ -22,8 +19,9 @@ const App = () => {
         {/* Epic 3: The Timeline */}
         <Route path="/timeline" element={<RaceTimeline />} />
         
-        {/* Epic 3: The Live-Sim View (The :id is the sessionKey) */}
-        <Route path="/sim/:id" element={<LiveSimView />} />
+        {/* Epic 3: The Live-Sim View */}
+        {/* The ":id" tells the router to expect a dynamic number here (the sessionKey) */}
+        <Route path="/sim/:id" element={<LiveSimView />} /> 
       </Routes>
     </div>
   );

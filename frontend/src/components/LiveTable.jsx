@@ -1,4 +1,4 @@
-import  { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useTelemetry } from '../context/TelemetryContext';
 
 const LiveTable = ({ sessionKey }) => {
@@ -8,7 +8,8 @@ const LiveTable = ({ sessionKey }) => {
         currentFrame, 
         error, 
         startSimulation, 
-        stopSimulation 
+        stopSimulation,
+        driversMap // 🏎️ 1. PULL THE ROSTER MAP FROM CONTEXT
     } = useTelemetry();
 
     // Start simulation on mount, cleanup on unmount
@@ -41,7 +42,7 @@ const LiveTable = ({ sessionKey }) => {
             const baseS3 = 23.1;
             
             // Generate a fluctuating state (0, 1, or 2) to simulate sector statuses
-            // 0 = Yellow (No improvement), 1 = Green (Personal Best), 2 = Purple (Fastest Overall)
+            // 0 = Yellow, 1 = Green (PB), 2 = Purple (Fastest)
             const s1Status = (pos.driver_number + timeTick) % 15 === 0 ? 2 : (pos.driver_number + timeTick) % 7 === 0 ? 1 : 0;
             const s2Status = (pos.driver_number + timeTick + 1) % 18 === 0 ? 2 : (pos.driver_number + timeTick + 1) % 6 === 0 ? 1 : 0;
             const s3Status = (pos.driver_number + timeTick + 2) % 20 === 0 ? 2 : (pos.driver_number + timeTick + 2) % 5 === 0 ? 1 : 0;
@@ -106,11 +107,12 @@ const LiveTable = ({ sessionKey }) => {
                             </span>
                         </div>
 
-                        {/* Driver Number & Color Bar */}
+                        {/* Driver Name & Color Bar */}
                         <div className="col-span-2 flex items-center gap-2">
                             <div className="w-1 h-3.5 bg-cyan-500 rounded-full group-hover:bg-cyan-400 transition-colors"></div>
                             <span className="font-black text-gray-100 uppercase text-xs md:text-sm tracking-wider">
-                                {row.driver_number}
+                                {/* 🏎️ 2. MAP THE DRIVER ACRONYM (Fallback to number if loading) */}
+                                {driversMap[row.driver_number]?.acronym || row.driver_number}
                             </span>
                         </div>
 
@@ -143,33 +145,24 @@ const LiveTable = ({ sessionKey }) => {
 
 /**
  * Micro-component for Sector Times
- * Status: 0 = Yellow (No improvement), 1 = Green (Personal Best), 2 = Purple (Fastest Overall)
  */
 const SectorBox = ({ time, status }) => {
     const [isFlashing, setIsFlashing] = useState(false);
     const prevTimeRef = useRef(time);
 
     useEffect(() => {
-        // Trigger the flash animation ONLY if the time actually changed
         if (time && time !== prevTimeRef.current) {
             setIsFlashing(true);
-            
-            // Hold the solid flash for 1.5 seconds, then fade out
             const timer = setTimeout(() => {
                 setIsFlashing(false);
             }, 1500);
-
             prevTimeRef.current = time;
-
             return () => clearTimeout(timer);
         }
     }, [time]);
 
-    // Base Styles (Resting State)
     let textColor = "text-yellow-500";
     let bgColor = "bg-transparent";
-    
-    // Flash Styles (Triggered State)
     let flashClasses = "";
 
     if (status === 1) {
