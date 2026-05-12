@@ -55,17 +55,17 @@ jobs:
 
 # 3. THE DEPLOYMENT
   # This tells your VirtualBox VM to pull the fresh images and run them.
-  deploy:
-    needs: build-and-push  # This ensures we don't deploy until the build is 100% successful
-    runs-on: self-hosted   # This routes the job directly to your VM
+  # deploy:
+  #   needs: build-and-push  # This ensures we don't deploy until the build is 100% successful
+  #   runs-on: self-hosted   # This routes the job directly to your VM
 
-    steps:
-      # Step A: Download the code to the VM so it has your docker-compose.yml file
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+  #   steps:
+  #     # Step A: Download the code to the VM so it has your docker-compose.yml file
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v3
 
-      # Step B: Pull the latest images from Docker Hub and start the engines
-      - name: Pull and Start Containers
-        run: |
-          docker compose pull
-          docker compose up -d
+  #     # Step B: Pull the latest images from Docker Hub and start the engines
+  #     - name: Pull and Start Containers
+  #       run: |
+  #         docker compose pull
+  #         docker compose up -d
