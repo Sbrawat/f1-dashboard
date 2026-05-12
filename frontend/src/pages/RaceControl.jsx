@@ -3,6 +3,7 @@ import 'react';
 // Importing components (We will build these next in Task 2.2)
 import NextSessionCard from '../components/NextSessionCard';
 import WeatherCard from '../components/WeatherCard';
+import RaceTimeline from '../pages/RaceTimeline'
 
 // Importing context hooks (We will build these in the Context step)
 // Assuming you create custom hooks for cleaner imports, e.g., useSession() and useWeather()
@@ -24,6 +25,7 @@ const RaceControl = () => {
     } = useWeather();
 
     return (
+        <>
         <div className="min-h-screen bg-gray-950 text-gray-100 p-4 md:p-8 font-sans">
             {/* Header Section */}
             <header className="mb-8 border-b border-red-600 pb-4 max-w-7xl mx-auto">
@@ -79,6 +81,9 @@ const RaceControl = () => {
 
             </main>
         </div>
+            <RaceTimeline/>
+                </>
+
     );
 };
 
